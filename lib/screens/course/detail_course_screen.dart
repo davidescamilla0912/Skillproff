@@ -2,12 +2,12 @@
 // lista de capítulos y botón para iniciar el quiz.
 import 'package:flutter/material.dart';
 import '../../theme/app_theme.dart';
-import '../../domain/entities/entities.dart';
+import '../../data/models/api_models.dart';
 import '../../widgets/shared_widgets.dart';
 import 'quiz_screen.dart';
 
 class DetailCourseScreen extends StatefulWidget {
-  final CourseModel course;
+  final Course course;
   const DetailCourseScreen({super.key, required this.course});
   @override
   State<DetailCourseScreen> createState() => _DetailCourseScreenState();

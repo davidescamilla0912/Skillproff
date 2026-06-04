@@ -20,11 +20,7 @@ void main() async {
   );
 
   // Composición: crea implementaciones y usa casos de uso
-  final courseRepo = CourseRepositoryImpl();
   final sessionRepo = SessionRepositoryImpl();
-
-  // Carga datos del JSON vía usecase
-  await LoadDataUseCase(courseRepo).call();
 
   // Verifica si ya hay sesion guardada en el celular via usecase
   final bool loggedIn = await IsLoggedInUseCase(sessionRepo).call();

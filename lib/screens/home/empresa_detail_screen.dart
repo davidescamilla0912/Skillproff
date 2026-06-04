@@ -2,11 +2,11 @@
 // de la empresa, requisitos del cargo y botón para postularse.
 import 'package:flutter/material.dart';
 import '../../theme/app_theme.dart';
-import '../../domain/entities/entities.dart';
+import '../../data/models/api_models.dart';
 import '../../widgets/shared_widgets.dart';
 
 class EmpresaDetailScreen extends StatelessWidget {
-  final JobModel job;
+  final Job job;
   const EmpresaDetailScreen({super.key, required this.job});
 
   @override

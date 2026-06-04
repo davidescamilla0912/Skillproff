@@ -5,6 +5,7 @@ import '../../theme/app_theme.dart';
 import '../../widgets/shared_widgets.dart';
 import '../../application/usecases/save_login_usecase.dart';
 import '../../infrastructure/repositories/session_repository_impl.dart';
+import '../../data/services/backend_service.dart';
 import 'register_screen.dart';
 import '../home/main_screen.dart';
 
@@ -22,6 +23,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
   final _sessionRepo = SessionRepositoryImpl();
   late final _saveLogin = SaveLoginUseCase(_sessionRepo);
+  final _backendService = BackendService();
 
   String? _emailError;
   String? _passwordError;
@@ -53,26 +55,46 @@ class _LoginScreenState extends State<LoginScreen> {
   void _login() async {
     if (!_validate()) return;
     setState(() => _loading = true);
-    await Future.delayed(const Duration(milliseconds: 1000));
-    if (!mounted) return;
 
-    // Guarda la sesion en el celular con shared_preferences
-    await _saveLogin.call(
-      name: 'Christina Angela',
-      email: _emailCtrl.text.trim(),
-      role: 'student',
-    );
+    try {
+      final response = await _backendService.login(
+        _emailCtrl.text.trim(),
+        _passwordCtrl.text,
+      );
 
-    setState(() => _loading = false);
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Bienvenido de vuelta!'),
-        backgroundColor: AppColors.success,
-        duration: Duration(seconds: 2),
-      ),
-    );
-    Navigator.of(context)
-        .pushReplacement(MaterialPageRoute(builder: (_) => const MainScreen()));
+      if (!mounted) return;
+
+      // Suponiendo que el backend devuelve algo como:
+      // { "user": { "name": "...", "email": "...", "role": "..." }, "token": "..." }
+      final userData = response['user'] ?? {};
+
+      // Guarda la sesion localmente
+      await _saveLogin.call(
+        name: userData['name'] ?? 'Usuario',
+        email: userData['email'] ?? _emailCtrl.text.trim(),
+        role: userData['role'] ?? 'student',
+      );
+
+      setState(() => _loading = false);
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Bienvenido de vuelta!'),
+          backgroundColor: AppColors.success,
+          duration: Duration(seconds: 2),
+        ),
+      );
+      Navigator.of(context).pushReplacement(
+          MaterialPageRoute(builder: (_) => const MainScreen()));
+    } catch (e) {
+      if (!mounted) return;
+      setState(() => _loading = false);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(e.toString()),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
   }
 
   @override

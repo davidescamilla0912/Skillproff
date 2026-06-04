@@ -3,7 +3,7 @@
 import 'package:flutter/material.dart';
 import '../../widgets/shared_widgets.dart';
 import 'home_tab.dart';
-import 'course_tab.dart';
+import '../course/course_tab.dart';
 import '../profile/profile_screen.dart';
 
 class MainScreen extends StatefulWidget {

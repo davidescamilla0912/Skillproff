@@ -2,12 +2,12 @@
 // obtenido y opción para intentarlo de nuevo.
 import 'package:flutter/material.dart';
 import '../../theme/app_theme.dart';
-import '../../domain/entities/entities.dart';
+import '../../data/models/api_models.dart';
 import '../../widgets/shared_widgets.dart';
 import '../home/main_screen.dart';
 
 class CourseFailScreen extends StatelessWidget {
-  final CourseModel course;
+  final Course course;
   const CourseFailScreen({super.key, required this.course});
 
   @override

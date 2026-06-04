@@ -2,12 +2,12 @@
 // de felicitación y botón para volver al inicio.
 import 'package:flutter/material.dart';
 import '../../theme/app_theme.dart';
-import '../../domain/entities/entities.dart';
+import '../../data/models/api_models.dart';
 import '../../widgets/shared_widgets.dart';
 import '../home/main_screen.dart';
 
 class CourseSuccessScreen extends StatelessWidget {
-  final CourseModel course;
+  final Course course;
   const CourseSuccessScreen({super.key, required this.course});
 
   @override

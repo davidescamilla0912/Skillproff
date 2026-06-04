@@ -1,8 +1,7 @@
 // Pantalla donde el usuario elige su modalidad preferida
 // (presencial, virtual, etc.) durante el onboarding.
 import 'package:flutter/material.dart';
-import '../../application/usecases/get_skill_categories_usecase.dart';
-import '../../infrastructure/repositories/course_repository_impl.dart';
+import '../../data/services/backend_service.dart';
 import '../../widgets/shared_widgets.dart';
 import 'course_option_screen.dart';
 
@@ -14,8 +13,14 @@ class ClassOptionScreen extends StatefulWidget {
 
 class _ClassOptionScreenState extends State<ClassOptionScreen> {
   String? _selected;
-  final _courseRepo = CourseRepositoryImpl();
-  late final _getSkillCategories = GetSkillCategoriesUseCase(_courseRepo);
+  final _backend = BackendService();
+  late Future<List<Map<String, String>>> _areasFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    _areasFuture = _backend.getAreas();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -23,29 +28,38 @@ class _ClassOptionScreenState extends State<ClassOptionScreen> {
       backgroundColor: Colors.white,
       body: Column(
         children: [
-          _BlueArc(title: 'De Los Siguientes Cual\nTe Desempenas Mejor'),
+          const _BlueArc(title: 'De Los Siguientes Cual\nTe Desempenas Mejor'),
           Expanded(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 24),
-              child: Column(
-                children: [
-                  ..._getSkillCategories.call().map((cat) => _OptionTile(
-                        label: cat['label']!,
-                        isSelected: _selected == cat['id'],
-                        onTap: () => setState(() => _selected = cat['id']),
-                      )),
-                  const Spacer(),
-                  SPButton(
-                    label: 'siguiente',
-                    onTap: _selected != null
-                        ? () => Navigator.of(context).pushReplacement(
-                            MaterialPageRoute(
-                                builder: (_) => const CourseOptionScreen()))
-                        : null,
+            child: FutureBuilder<List<Map<String, String>>>(
+              future: _areasFuture,
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const Center(child: CircularProgressIndicator());
+                }
+                final areas = snapshot.data ?? [];
+                return Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 24),
+                  child: Column(
+                    children: [
+                      ...areas.map((cat) => _OptionTile(
+                            label: cat['label']!,
+                            isSelected: _selected == cat['id'],
+                            onTap: () => setState(() => _selected = cat['id']),
+                          )),
+                      const Spacer(),
+                      SPButton(
+                        label: 'siguiente',
+                        onTap: _selected != null
+                            ? () => Navigator.of(context).pushReplacement(
+                                MaterialPageRoute(
+                                    builder: (_) => const CourseOptionScreen()))
+                            : null,
+                      ),
+                      const SizedBox(height: 20),
+                    ],
                   ),
-                  const SizedBox(height: 20),
-                ],
-              ),
+                );
+              }
             ),
           ),
         ],
@@ -53,6 +67,7 @@ class _ClassOptionScreenState extends State<ClassOptionScreen> {
     );
   }
 }
+
 
 class _BlueArc extends StatelessWidget {
   final String title;

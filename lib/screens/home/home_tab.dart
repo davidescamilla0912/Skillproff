@@ -1,94 +1,115 @@
-// Tab de inicio. Muestra barra de búsqueda, cursos en progreso,
-// carrusel de recomendados con auto-scroll cada 3 seg, y empleos.
 import 'dart:async';
 import 'package:flutter/material.dart';
 import '../../theme/app_theme.dart';
-import '../../domain/entities/entities.dart';
-import '../../application/usecases/get_courses_usecase.dart';
-import '../../application/usecases/get_courses_in_progress_usecase.dart';
-import '../../application/usecases/get_jobs_usecase.dart';
-import '../../infrastructure/repositories/course_repository_impl.dart';
-import '../../infrastructure/repositories/job_repository_impl.dart';
+import '../../data/models/api_models.dart';
+import '../../data/services/backend_service.dart';
 import '../course/detail_course_screen.dart';
 import 'notification_screen.dart';
 import 'empresa_detail_screen.dart';
 
-class HomeTab extends StatelessWidget {
+class HomeTab extends StatefulWidget {
   const HomeTab({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    final courseRepo = CourseRepositoryImpl();
-    final jobRepo = JobRepositoryImpl();
-    final inProgress = GetCoursesInProgressUseCase(courseRepo).call();
-    final allCourses = GetCoursesUseCase(courseRepo).call();
-    final sampleJobs = GetJobsUseCase(jobRepo).call();
+  State<HomeTab> createState() => _HomeTabState();
+}
 
+class _HomeTabState extends State<HomeTab> {
+  final _backend = BackendService();
+  late Future<List<Course>> _coursesFuture;
+  late Future<List<Job>> _jobsFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    _coursesFuture = _backend.getCourses();
+    _jobsFuture = _backend.getJobs();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.backgroundGrey,
       body: SafeArea(
-        child: CustomScrollView(
-          slivers: [
-            SliverToBoxAdapter(child: _buildHeader(context)),
-            if (inProgress.isNotEmpty) ...[
-              SliverToBoxAdapter(
-                child: Padding(
-                  padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
-                  child: Text('Continuar', style: AppTextStyles.heading3),
+        child: FutureBuilder(
+          future: Future.wait([_coursesFuture, _jobsFuture]),
+          builder: (context, AsyncSnapshot<List<dynamic>> snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return const Center(child: CircularProgressIndicator());
+            }
+
+            final List<Course> allCourses = snapshot.data?[0] ?? [];
+            final List<Job> sampleJobs = snapshot.data?[1] ?? [];
+            final inProgress = allCourses.where((c) => c.progress > 0).toList();
+
+            return CustomScrollView(
+              slivers: [
+                SliverToBoxAdapter(child: _buildHeader(context)),
+                if (inProgress.isNotEmpty) ...[
+                  const SliverToBoxAdapter(
+                    child: Padding(
+                      padding: EdgeInsets.fromLTRB(16, 16, 16, 8),
+                      child: Text('Continuar', style: AppTextStyles.heading3),
+                    ),
+                  ),
+                  SliverToBoxAdapter(
+                    child: SizedBox(
+                      height: 110,
+                      child: ListView.builder(
+                        scrollDirection: Axis.horizontal,
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        itemCount: inProgress.length,
+                        itemBuilder: (ctx, i) => _ContinueCard(
+                          course: inProgress[i],
+                          onTap: () => Navigator.of(context).push(
+                              MaterialPageRoute(
+                                  builder: (_) => DetailCourseScreen(
+                                      course: inProgress[i]))),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+                SliverToBoxAdapter(child: _buildTabs()),
+                SliverToBoxAdapter(
+                  child: _CourseCarousel(
+                    courses: allCourses,
+                    onTap: (course) => Navigator.of(context).push(
+                        MaterialPageRoute(
+                            builder: (_) =>
+                                DetailCourseScreen(course: course))),
+                  ),
                 ),
-              ),
-              SliverToBoxAdapter(
-                child: SizedBox(
-                  height: 110,
-                  child: ListView.builder(
-                    scrollDirection: Axis.horizontal,
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    itemCount: inProgress.length,
-                    itemBuilder: (ctx, i) => _ContinueCard(
-                      course: inProgress[i],
-                      onTap: () => Navigator.of(context).push(MaterialPageRoute(
-                          builder: (_) =>
-                              DetailCourseScreen(course: inProgress[i]))),
+                SliverToBoxAdapter(
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(16, 20, 16, 8),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        const Text('Empleos', style: AppTextStyles.heading3),
+                        TextButton(
+                            onPressed: () {},
+                            child: const Text('Ver Todo',
+                                style: AppTextStyles.link)),
+                      ],
                     ),
                   ),
                 ),
-              ),
-            ],
-            SliverToBoxAdapter(child: _buildTabs()),
-            SliverToBoxAdapter(
-              child: _CourseCarousel(
-                courses: allCourses,
-                onTap: (course) => Navigator.of(context).push(MaterialPageRoute(
-                    builder: (_) => DetailCourseScreen(course: course))),
-              ),
-            ),
-            SliverToBoxAdapter(
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(16, 20, 16, 8),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text('Empleos', style: AppTextStyles.heading3),
-                    TextButton(
-                        onPressed: () {},
-                        child:
-                            const Text('Ver Todo', style: AppTextStyles.link)),
-                  ],
+                SliverList(
+                  delegate: SliverChildBuilderDelegate(
+                    (ctx, i) => _JobCard(
+                      job: sampleJobs[i],
+                      onTap: () => Navigator.of(context).push(MaterialPageRoute(
+                          builder: (_) =>
+                              EmpresaDetailScreen(job: sampleJobs[i]))),
+                    ),
+                    childCount: sampleJobs.length,
+                  ),
                 ),
-              ),
-            ),
-            SliverList(
-              delegate: SliverChildBuilderDelegate(
-                (ctx, i) => _JobCard(
-                  job: sampleJobs[i],
-                  onTap: () => Navigator.of(context).push(MaterialPageRoute(
-                      builder: (_) => EmpresaDetailScreen(job: sampleJobs[i]))),
-                ),
-                childCount: sampleJobs.length,
-              ),
-            ),
-            const SliverToBoxAdapter(child: SizedBox(height: 32)),
-          ],
+                const SliverToBoxAdapter(child: SizedBox(height: 32)),
+              ],
+            );
+          },
         ),
       ),
     );
@@ -144,13 +165,13 @@ class HomeTab extends StatelessWidget {
     return Container(
       color: Colors.white,
       padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
-      child: Row(
+      child: const Row(
         children: [
-          _TabLabel(label: 'Recomendado', isSelected: true),
-          const SizedBox(width: 20),
-          _TabLabel(label: 'Nuevo', isSelected: false),
-          const SizedBox(width: 20),
-          _TabLabel(label: 'Recientes', isSelected: false),
+          _HTTabLabel(label: 'Recomendado', isSelected: true),
+          SizedBox(width: 20),
+          _HTTabLabel(label: 'Nuevo', isSelected: false),
+          SizedBox(width: 20),
+          _HTTabLabel(label: 'Recientes', isSelected: false),
         ],
       ),
     );
@@ -158,8 +179,8 @@ class HomeTab extends StatelessWidget {
 }
 
 class _CourseCarousel extends StatefulWidget {
-  final List<CourseModel> courses;
-  final void Function(CourseModel) onTap;
+  final List<Course> courses;
+  final void Function(Course) onTap;
   const _CourseCarousel({required this.courses, required this.onTap});
 
   @override
@@ -198,6 +219,7 @@ class _CourseCarouselState extends State<_CourseCarousel> {
 
   @override
   Widget build(BuildContext context) {
+    if (widget.courses.isEmpty) return const SizedBox.shrink();
     return Container(
       color: Colors.white,
       padding: const EdgeInsets.only(bottom: 16),
@@ -205,27 +227,24 @@ class _CourseCarouselState extends State<_CourseCarousel> {
         children: [
           SizedBox(
             height: 220,
-            child: GestureDetector(
-              onHorizontalDragUpdate: (_) {},
-              child: PageView.builder(
-                controller: _controller,
-                physics: const BouncingScrollPhysics(
-                    parent: AlwaysScrollableScrollPhysics()),
-                itemCount: widget.courses.length,
-                onPageChanged: (i) => setState(() => _current = i),
-                itemBuilder: (ctx, i) {
-                  final course = widget.courses[i];
-                  final isActive = i == _current;
-                  return AnimatedScale(
-                    scale: isActive ? 1.0 : 0.93,
-                    duration: const Duration(milliseconds: 250),
-                    child: _CarouselCard(
-                      course: course,
-                      onTap: () => widget.onTap(course),
-                    ),
-                  );
-                },
-              ),
+            child: PageView.builder(
+              controller: _controller,
+              physics: const BouncingScrollPhysics(
+                  parent: AlwaysScrollableScrollPhysics()),
+              itemCount: widget.courses.length,
+              onPageChanged: (i) => setState(() => _current = i),
+              itemBuilder: (ctx, i) {
+                final course = widget.courses[i];
+                final isActive = i == _current;
+                return AnimatedScale(
+                  scale: isActive ? 1.0 : 0.93,
+                  duration: const Duration(milliseconds: 250),
+                  child: _CarouselCard(
+                    course: course,
+                    onTap: () => widget.onTap(course),
+                  ),
+                );
+              },
             ),
           ),
           const SizedBox(height: 12),
@@ -252,7 +271,7 @@ class _CourseCarouselState extends State<_CourseCarousel> {
 }
 
 class _CarouselCard extends StatelessWidget {
-  final CourseModel course;
+  final Course course;
   final VoidCallback onTap;
   const _CarouselCard({required this.course, required this.onTap});
 
@@ -286,19 +305,6 @@ class _CarouselCard extends StatelessWidget {
                 child: Image.network(
                   course.imageUrl,
                   fit: BoxFit.contain,
-                  loadingBuilder: (ctx, child, progress) {
-                    if (progress == null) return child;
-                    return Center(
-                      child: CircularProgressIndicator(
-                        strokeWidth: 2,
-                        color: course.bgColor,
-                        value: progress.expectedTotalBytes != null
-                            ? progress.cumulativeBytesLoaded /
-                                progress.expectedTotalBytes!
-                            : null,
-                      ),
-                    );
-                  },
                   errorBuilder: (c, e, s) =>
                       Icon(Icons.code, size: 64, color: course.bgColor),
                 ),
@@ -338,16 +344,9 @@ class _CarouselCard extends StatelessWidget {
                                 fontSize: 13, color: AppColors.primary)),
                       ),
                       const SizedBox(width: 12),
-                      TextButton(
-                        onPressed: () {},
-                        style: TextButton.styleFrom(
-                            padding: EdgeInsets.zero,
-                            minimumSize: Size.zero,
-                            tapTargetSize: MaterialTapTargetSize.shrinkWrap),
-                        child: const Text('Discuss',
-                            style: TextStyle(
-                                fontSize: 13, color: AppColors.primary)),
-                      ),
+                      const Text('Discuss',
+                          style: TextStyle(
+                              fontSize: 13, color: AppColors.primary)),
                     ],
                   ),
                 ],
@@ -361,7 +360,7 @@ class _CarouselCard extends StatelessWidget {
 }
 
 class _ContinueCard extends StatelessWidget {
-  final CourseModel course;
+  final Course course;
   final VoidCallback onTap;
   const _ContinueCard({required this.course, required this.onTap});
 
@@ -427,7 +426,7 @@ class _ContinueCard extends StatelessWidget {
 }
 
 class _JobCard extends StatelessWidget {
-  final JobModel job;
+  final Job job;
   final VoidCallback? onTap;
   const _JobCard({required this.job, this.onTap});
 
@@ -495,10 +494,10 @@ class _JobCard extends StatelessWidget {
   }
 }
 
-class _TabLabel extends StatelessWidget {
+class _HTTabLabel extends StatelessWidget {
   final String label;
   final bool isSelected;
-  const _TabLabel({required this.label, required this.isSelected});
+  const _HTTabLabel({required this.label, required this.isSelected});
 
   @override
   Widget build(BuildContext context) {

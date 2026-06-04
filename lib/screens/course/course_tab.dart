@@ -1,18 +1,28 @@
 import 'package:flutter/material.dart';
 import '../../theme/app_theme.dart';
-import '../../domain/entities/entities.dart';
-import '../../application/usecases/get_courses_usecase.dart';
-import '../../infrastructure/repositories/course_repository_impl.dart';
+import '../../data/models/api_models.dart';
+import '../../data/services/backend_service.dart';
 import '../course/detail_course_screen.dart';
 
-class CourseTab extends StatelessWidget {
+class CourseTab extends StatefulWidget {
   const CourseTab({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    final courseRepo = CourseRepositoryImpl();
-    final courses = GetCoursesUseCase(courseRepo).call();
+  State<CourseTab> createState() => _CourseTabState();
+}
 
+class _CourseTabState extends State<CourseTab> {
+  final _backendService = BackendService();
+  late Future<List<Course>> _coursesFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    _coursesFuture = _backendService.getCourses();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.backgroundGrey,
       appBar: AppBar(
@@ -22,16 +32,35 @@ class CourseTab extends StatelessWidget {
         bottom: const PreferredSize(
             preferredSize: Size.fromHeight(1), child: Divider(height: 1)),
       ),
-      body: ListView.builder(
-        padding: const EdgeInsets.symmetric(vertical: 12),
-        itemCount: courses.length,
-        itemBuilder: (context, i) {
-          final course = courses[i];
-          return _CourseListCard(
-            course: course,
-            onView: () => Navigator.of(context).push(MaterialPageRoute(
-                builder: (_) => DetailCourseScreen(course: course))),
-            onIgnore: () {},
+      body: FutureBuilder<List<Course>>(
+        future: _coursesFuture,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          }
+
+          if (snapshot.hasError) {
+            return Center(child: Text('Error: ${snapshot.error}'));
+          }
+
+          final courses = snapshot.data ?? [];
+
+          if (courses.isEmpty) {
+            return const Center(child: Text('No hay cursos disponibles'));
+          }
+
+          return ListView.builder(
+            padding: const EdgeInsets.symmetric(vertical: 12),
+            itemCount: courses.length,
+            itemBuilder: (context, i) {
+              final course = courses[i];
+              return _CourseListCard(
+                course: course,
+                onView: () => Navigator.of(context).push(MaterialPageRoute(
+                    builder: (_) => DetailCourseScreen(course: course))),
+                onIgnore: () {},
+              );
+            },
           );
         },
       ),
@@ -40,7 +69,7 @@ class CourseTab extends StatelessWidget {
 }
 
 class _CourseListCard extends StatelessWidget {
-  final CourseModel course;
+  final Course course;
   final VoidCallback onView;
   final VoidCallback onIgnore;
   const _CourseListCard(
@@ -62,13 +91,13 @@ class _CourseListCard extends StatelessWidget {
               width: 72,
               height: 72,
               decoration: BoxDecoration(
-                  color: course.bgColor,
+                  color: course.bgColor.withOpacity(0.1),
                   borderRadius: BorderRadius.circular(8)),
               child: Center(
                   child: Image.network(course.imageUrl,
                       fit: BoxFit.contain,
                       errorBuilder: (ctx, e, s) =>
-                          Icon(Icons.code, color: course.bgColor)))),
+                          Icon(Icons.code, color: course.bgColor, size: 32)))),
           const SizedBox(width: 12),
           Expanded(
             child:
@@ -168,3 +197,4 @@ class _InfoRow extends StatelessWidget {
     ]);
   }
 }
+

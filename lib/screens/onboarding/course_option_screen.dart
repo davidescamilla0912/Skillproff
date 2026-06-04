@@ -1,9 +1,8 @@
 // Pantalla donde el usuario selecciona los cursos de su interés
 // al registrarse. Navega a MainScreen al confirmar.
 import 'package:flutter/material.dart';
-import '../../application/usecases/get_course_options_usecase.dart';
+import '../../data/services/backend_service.dart';
 import '../../application/usecases/save_category_usecase.dart';
-import '../../infrastructure/repositories/course_repository_impl.dart';
 import '../../infrastructure/repositories/session_repository_impl.dart';
 import '../../widgets/shared_widgets.dart';
 import '../home/main_screen.dart';
@@ -16,10 +15,16 @@ class CourseOptionScreen extends StatefulWidget {
 
 class _CourseOptionScreenState extends State<CourseOptionScreen> {
   String? _selected;
-  final _courseRepo = CourseRepositoryImpl();
-  late final _getCourseOptions = GetCourseOptionsUseCase(_courseRepo);
+  final _backend = BackendService();
+  late Future<List<String>> _optionsFuture;
   final _sessionRepo = SessionRepositoryImpl();
   late final _saveCategory = SaveCategoryUseCase(_sessionRepo);
+
+  @override
+  void initState() {
+    super.initState();
+    _optionsFuture = _backend.getHabilidades();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -36,11 +41,11 @@ class _CourseOptionScreenState extends State<CourseOptionScreen> {
                   bottomLeft: Radius.circular(80),
                   bottomRight: Radius.circular(80)),
             ),
-            child: SafeArea(
+            child: const SafeArea(
               child: Center(
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 32),
-                  child: const Text(
+                  padding: EdgeInsets.symmetric(horizontal: 32),
+                  child: Text(
                       'De Los Siguientes Cual\nTe Desempenas Mejor',
                       textAlign: TextAlign.center,
                       style: TextStyle(
@@ -53,56 +58,65 @@ class _CourseOptionScreenState extends State<CourseOptionScreen> {
             ),
           ),
           Expanded(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 24),
-              child: Column(
-                children: [
-                  ..._getCourseOptions.call().map((opt) => GestureDetector(
-                        onTap: () => setState(() => _selected = opt),
-                        child: Container(
-                          width: double.infinity,
-                          margin: const EdgeInsets.only(bottom: 12),
-                          padding: const EdgeInsets.symmetric(
-                              vertical: 14, horizontal: 16),
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            border: Border.all(
-                                color: _selected == opt
-                                    ? const Color(0xFF2196F3)
-                                    : const Color(0xFFE0E0E0),
-                                width: _selected == opt ? 1.5 : 1),
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: Text(opt,
-                              textAlign: TextAlign.center,
-                              style: TextStyle(
-                                  fontSize: 15,
-                                  color: _selected == opt
-                                      ? const Color(0xFF2196F3)
-                                      : const Color(0xFF212121),
-                                  fontWeight: _selected == opt
-                                      ? FontWeight.w600
-                                      : FontWeight.w400)),
-                        ),
-                      )),
-                  const Spacer(),
-                  SPButton(
-                    label: 'empezar',
-                    onTap: _selected != null
-                        ? () async {
-                            // Guarda la categoria elegida en shared_preferences
-                            await _saveCategory.call(_selected!);
-                            if (!context.mounted) return;
-                            Navigator.of(context).pushAndRemoveUntil(
-                                MaterialPageRoute(
-                                    builder: (_) => const MainScreen()),
-                                (r) => false);
-                          }
-                        : null,
+            child: FutureBuilder<List<String>>(
+              future: _optionsFuture,
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const Center(child: CircularProgressIndicator());
+                }
+                final options = snapshot.data ?? [];
+                return Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 24),
+                  child: Column(
+                    children: [
+                      ...options.map((opt) => GestureDetector(
+                            onTap: () => setState(() => _selected = opt),
+                            child: Container(
+                              width: double.infinity,
+                              margin: const EdgeInsets.only(bottom: 12),
+                              padding: const EdgeInsets.symmetric(
+                                  vertical: 14, horizontal: 16),
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                border: Border.all(
+                                    color: _selected == opt
+                                        ? const Color(0xFF2196F3)
+                                        : const Color(0xFFE0E0E0),
+                                    width: _selected == opt ? 1.5 : 1),
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: Text(opt,
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(
+                                      fontSize: 15,
+                                      color: _selected == opt
+                                          ? const Color(0xFF2196F3)
+                                          : const Color(0xFF212121),
+                                      fontWeight: _selected == opt
+                                          ? FontWeight.w600
+                                          : FontWeight.w400)),
+                            ),
+                          )),
+                      const Spacer(),
+                      SPButton(
+                        label: 'empezar',
+                        onTap: _selected != null
+                            ? () async {
+                                // Guarda la categoria elegida en shared_preferences
+                                await _saveCategory.call(_selected!);
+                                if (!context.mounted) return;
+                                Navigator.of(context).pushAndRemoveUntil(
+                                    MaterialPageRoute(
+                                        builder: (_) => const MainScreen()),
+                                    (r) => false);
+                              }
+                            : null,
+                      ),
+                      const SizedBox(height: 20),
+                    ],
                   ),
-                  const SizedBox(height: 20),
-                ],
-              ),
+                );
+              }
             ),
           ),
         ],
@@ -110,3 +124,4 @@ class _CourseOptionScreenState extends State<CourseOptionScreen> {
     );
   }
 }
+
