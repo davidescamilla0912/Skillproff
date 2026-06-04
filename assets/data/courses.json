@@ -1,0 +1,293 @@
+{
+  "courses": [
+    {
+      "id": "flask",
+      "title": "Prueba Flask",
+      "category": "Programación",
+      "tags": "Python, Pandas",
+      "duration": "12h 30m",
+      "chapters": 12,
+      "students": 45,
+      "reviews": 350,
+      "level": "free",
+      "bgColor": "0xFFEF5350",
+      "emoji": "🍶",
+      "description": "Se te proporciona un archivo CSV con datos de ventas de una tienda online. El candidato debe analizar el dataset utilizando Python y la librería Pandas para identificar patrones de ventas y generar conclusiones base.",
+      "progress": 0.5,
+      "syllabus": [
+        "Introduction",
+        "Configuración del entorno",
+        "Manejo de rutas",
+        "Base de datos",
+        "Autenticación",
+        "Deploy"
+      ],
+      "imageUrl": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/flask/flask-original.svg"
+    },
+    {
+      "id": "react",
+      "title": "Prueba React",
+      "category": "Programación",
+      "tags": "Frontend",
+      "duration": "12h 30m",
+       "chapters": 12,
+      "students": 45,
+      "reviews": 350,
+      "level": "Medio",
+      "bgColor": "0xFF29B6F6",
+      "emoji": "⚛️",
+      "description": "Demuestra tus habilidades en React desarrollando componentes reutilizables, manejo de estado con Hooks y conexión a una base de datos.",
+      "progress": 0.7,
+      "syllabus": [
+        "Components & Props",
+        "Hooks",
+        "State Management",
+        "API Integration",
+        "Testing",
+        "Deploy"
+      ],
+      "imageUrl": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/react/react-original.svg"
+    },
+    {
+      "id": "powerbi",
+      "title": "Prueba PowerBI",
+      "category": "Programación",
+      "tags": "Backend",
+      "duration": "12h 30m",
+      "chapters": 12,
+      "students": 45,
+      "reviews": 350,
+      "level": "free",
+      "bgColor": "0xFFFFA726",
+      "emoji": "📊",
+      "description": "Demuestra tus habilidades analizando datos con PowerBI, creando dashboards interactivos y usando funciones DAX.",
+      "progress": -1,
+      "syllabus": [
+        "Introducción a PowerBI",
+        "Conexión de datos",
+        "Visualizaciones",
+        "Dashboards",
+        "DAX básico",
+        "Publicación"
+      ],
+      "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/c/cf/New_Power_BI_Logo.svg"
+    },
+    {
+      "id": "docker",
+      "title": "Prueba Docker",
+      "category": "Programación",
+      "tags": "Backend",
+      "duration": "13h 20m",
+      "chapters": 12,
+      "students": 40,
+      "reviews": 350,
+      "level": "free",
+      "bgColor": "0xFF0288D1",
+      "emoji": "🐳",
+      "description": "Demuestra tus habilidades con Docker creando contenedores, imágenes y configurando ambientes de desarrollo.",
+      "progress": -1,
+      "syllabus": [
+        "Contenedores",
+        "Imágenes",
+        "Dockerfile",
+        "Docker Compose",
+        "Networking",
+        "Producción"
+      ],
+      "imageUrl": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/docker/docker-original.svg"
+    },
+    {
+      "id": "github",
+      "title": "Prueba GitHub",
+      "category": "Programación",
+      "tags": "Backend",
+      "duration": "12h 30m",
+      "chapters": 12,
+      "students": 45,
+      "reviews": 350,
+      "level": "free",
+      "bgColor": "0xFF424242",
+      "emoji": "🐙",
+      "description": "Demuestra tus habilidades con Git y GitHub manejando ramas, pull requests y colaboración en proyectos.",
+      "progress": -1,
+      "syllabus": [
+        "Git básico",
+        "Ramas",
+        "Pull Requests",
+        "Issues",
+        "Actions",
+        "Colaboración"
+      ],
+      "imageUrl": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/github/github-original.svg"
+    },
+    {
+      "id": "js",
+      "title": "Prueba JS",
+      "category": "Programación",
+      "tags": "Frontend",
+      "duration": "10h 00m",
+      "chapters": 10,
+      "students": 60,
+      "reviews": 420,
+      "level": "free",
+      "bgColor": "0xFFFFCA28",
+      "emoji": "📜",
+      "description": "Demuestra tus habilidades en JavaScript con ejercicios prácticos de manipulación del DOM, eventos, promesas y APIs.",
+      "progress": -1,
+      "syllabus": [
+        "Variables & Tipos",
+        "Funciones",
+        "DOM",
+        "Async/Await",
+        "APIs",
+        "ES6+"
+      ],
+      "imageUrl": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/javascript/javascript-original.svg"
+    }
+  ],
+  "preguntas": [
+    {
+      "course_id": "flask",
+      "question": "¿Qué decorador se usa para definir una ruta en Flask?",
+      "options": [
+        "@app.route()",
+        "@route()",
+        "@path()",
+        "@flask.route()"
+      ],
+      "correctIndex": 0
+    },
+    {
+      "course_id": "flask",
+      "question": "¿Cuál es una característica principal de Flask?",
+      "options": [
+        "Solo permite código en Java",
+        "Es un microframework web de Python",
+        "Es un sistema operativo",
+        "Solo funciona sin conexión"
+      ],
+      "correctIndex": 1
+    },
+    {
+      "course_id": "flask",
+      "question": "¿Qué función devuelve una respuesta JSON en Flask?",
+      "options": [
+        "jsonify()",
+        "json_response()",
+        "make_json()",
+        "return_json()"
+      ],
+      "correctIndex": 0
+    },
+    {
+      "course_id": "react",
+      "question": "¿Cuál hook se usa para manejar efectos secundarios en React?",
+      "options": [
+        "useState",
+        "useEffect",
+        "useContext",
+        "useReducer"
+      ],
+      "correctIndex": 1
+    },
+    {
+      "course_id": "react",
+      "question": "¿Qué es JSX en React?",
+      "options": [
+        "Un lenguaje de programación",
+        "Una extensión de sintaxis de JavaScript",
+        "Un framework CSS",
+        "Una base de datos"
+      ],
+      "correctIndex": 1
+    },
+    {
+      "course_id": "powerbi",
+      "question": "¿Qué función DAX se usa para sumar valores filtrados?",
+      "options": [
+        "SUM()",
+        "CALCULATE()",
+        "SUMX()",
+        "FILTER()"
+      ],
+      "correctIndex": 1
+    },
+    {
+      "course_id": "docker",
+      "question": "¿Qué comando crea y ejecuta un contenedor Docker?",
+      "options": [
+        "docker start",
+        "docker run",
+        "docker build",
+        "docker create"
+      ],
+      "correctIndex": 1
+    },
+    {
+      "course_id": "github",
+      "question": "¿Qué comando crea una nueva rama en Git?",
+      "options": [
+        "git new branch",
+        "git branch nombre",
+        "git checkout -b nombre",
+        "git create branch"
+      ],
+      "correctIndex": 2
+    },
+    {
+      "course_id": "js",
+      "question": "¿Qué método convierte un objeto a JSON en JavaScript?",
+      "options": [
+        "JSON.parse()",
+        "JSON.stringify()",
+        "JSON.convert()",
+        "JSON.encode()"
+      ],
+      "correctIndex": 1
+    }
+  ],
+  "jobs": [
+    {
+      "company": "Davivienda",
+      "title": "Buscamos practicante con disponibilidad y conocimientos en...",
+      "timeAgo": "Hace 1 hora",
+      "applicants": 112,
+      "logoColor": "0xFFEF5350",
+      "emoji": "🏦",
+      "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8e/Davivienda_logo.svg/320px-Davivienda_logo.svg.png"
+    },
+    {
+      "company": "Avianca",
+      "title": "Practicante con conocimientos Power BI...",
+      "timeAgo": "Hace 1 semana",
+      "applicants": 4765,
+      "logoColor": "0xFFEF5350",
+      "emoji": "✈️",
+      "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7e/Avianca_logo_2013.svg/320px-Avianca_logo_2013.svg.png"
+    }
+  ],
+  "skillCategories": [
+    {
+      "label": "backend",
+      "id": "backend"
+    },
+    {
+      "label": "Lenguas extranjeras",
+      "id": "lenguajes"
+    },
+    {
+      "label": "programacion",
+      "id": "programacion"
+    },
+    {
+      "label": "Matematicas",
+      "id": "matematicas"
+    }
+  ],
+  "courseOptions": [
+    "desarrollo de software",
+    "tecnologia en la nube",
+    "Desarrollo movil",
+    "IA"
+  ]
+}

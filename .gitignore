@@ -1,0 +1,33 @@
+# Flutter
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.packages
+.pub-cache/
+build/
+
+# Android Studio
+.idea/
+*.iml
+
+# VSCode
+.vscode/
+
+# Mac
+.DS_Store
+
+# Logs
+*.log
+
+# Generated
+coverage/
+
+# Android
+android/.gradle/
+
+# iOS
+ios/Pods/
+ios/.symlinks/
+
+# Misc
+.metadata
